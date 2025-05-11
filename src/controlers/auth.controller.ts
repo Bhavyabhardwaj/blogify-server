@@ -11,6 +11,7 @@ const UserSchema = z.object({
 })
 
 
+
 const register = async (req: Request, res: Response) => {
     const userResponse = UserSchema.safeParse(req.body);
     if (!userResponse.success) {
