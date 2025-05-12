@@ -1,5 +1,5 @@
 import { hashPassword, comparePassword } from "../utils/bcrypt";
-import prisma from "../prisma/Client";
+import prisma from "../db/Client";
 import { generateToken, verifyToken } from "../utils/jwt";
 import { Request, Response } from "express";
 import { z } from "zod";
@@ -34,7 +34,9 @@ const register = async (req: Request, res: Response) => {
             data: {
                 email,
                 password: hashedPassword,
-                username
+                username,
+                bio: '',
+                avatarUrl: '',
             },
         });
 
