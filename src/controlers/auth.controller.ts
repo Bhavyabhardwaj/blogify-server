@@ -51,7 +51,7 @@ const register = async (req: Request, res: Response) => {
 const login = async (req: Request, res: Response) => {
     
     try {
-        const userResponse = UserSchema.safeParse(req.body);
+        const userResponse = LoginSchema.safeParse(req.body);
         if (!userResponse.success) {
             throw new Error('Invalid request body');
         }
