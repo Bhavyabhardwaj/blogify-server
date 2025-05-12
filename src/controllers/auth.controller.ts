@@ -22,8 +22,6 @@ const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
-
-
         const { email, password, username } = userResponse.data;
 
         if (!email || !password || !username) {
@@ -40,50 +38,52 @@ const register = async (req: Request, res: Response) => {
             },
         });
 
-    const token = generateToken(user.id);
+        const token = generateToken(user.id);
 
-    return res.status(201).json({ token });    }
+        res.status(201).json({ token });
+
+    }
     catch (err) {
-        return res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
 const login = async (req: Request, res: Response) => {
-    
     try {
         const userResponse = LoginSchema.safeParse(req.body);
         if (!userResponse.success) {
             throw new Error('Invalid request body');
         }
-    
+
         const { email, password } = userResponse.data;
-    
+
         if (!email || !password) {
             throw new Error('Please give all inputs');
         }
-    
+
         const user = await prisma.user.findUnique({
             where: {
                 email,
             },
         });
-    
+
         if (!user) {
             throw new Error('User not found');
         }
-    
+
         const isPasswordValid = await comparePassword(password, user.password);
-    
+
         if (!isPasswordValid) {
             throw new Error('Invalid password');
         }
-    
+
         const token = generateToken(user.id);
-    
-        return res.status(200).json({ token });
+
+        res.status(200).json({ token });
+
     } catch (error) {
-        return res.status(500).json({ error: "Internal server error" });
-        
+        res.status(500).json({ error: "Internal server error" });
+
     }
 };
 
