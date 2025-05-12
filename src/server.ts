@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import router from './routers/auth.route';
+import userRouter from './routers/user.route';
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,7 @@ app.get('/test', (req, res) => {
 })
 
 app.use('/api/auth', router)
+app.use('/api', userRouter)
 
 const PORT = process.env.PORT || 4000;
 
