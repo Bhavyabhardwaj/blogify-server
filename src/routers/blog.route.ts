@@ -10,4 +10,5 @@ blogRouter.put("/:id", authenticateJWT, updateBlog);
 blogRouter.delete("/:id", authenticateJWT, deleteBlog);
 blogRouter.post("/", authenticateJWT, createBlog);
 
+
 export default blogRouter;
