@@ -63,6 +63,8 @@ model Like {
   postId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([authorId, postId])
 }
 
 model Tag {
@@ -88,4 +90,6 @@ model Bookmark {
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
   createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
 }

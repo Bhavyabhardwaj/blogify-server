@@ -9948,6 +9948,7 @@ export namespace Prisma {
 
   export type LikeWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    authorId_postId?: LikeAuthorIdPostIdCompoundUniqueInput
     AND?: LikeWhereInput | LikeWhereInput[]
     OR?: LikeWhereInput[]
     NOT?: LikeWhereInput | LikeWhereInput[]
@@ -9957,7 +9958,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Like"> | Date | string
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     post?: XOR<PostScalarRelationFilter, PostWhereInput>
-  }, "id">
+  }, "id" | "authorId_postId">
 
   export type LikeOrderByWithAggregationInput = {
     id?: SortOrder
@@ -10108,6 +10109,7 @@ export namespace Prisma {
 
   export type BookmarkWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    postId_userId?: BookmarkPostIdUserIdCompoundUniqueInput
     AND?: BookmarkWhereInput | BookmarkWhereInput[]
     OR?: BookmarkWhereInput[]
     NOT?: BookmarkWhereInput | BookmarkWhereInput[]
@@ -10116,7 +10118,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Bookmark"> | Date | string
     post?: XOR<PostScalarRelationFilter, PostWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
+  }, "id" | "postId_userId">
 
   export type BookmarkOrderByWithAggregationInput = {
     id?: SortOrder
@@ -10819,6 +10821,11 @@ export namespace Prisma {
     postId?: SortOrder
   }
 
+  export type LikeAuthorIdPostIdCompoundUniqueInput = {
+    authorId: number
+    postId: number
+  }
+
   export type LikeCountOrderByAggregateInput = {
     id?: SortOrder
     authorId?: SortOrder
@@ -10917,6 +10924,11 @@ export namespace Prisma {
     id?: SortOrder
     postId?: SortOrder
     tagId?: SortOrder
+  }
+
+  export type BookmarkPostIdUserIdCompoundUniqueInput = {
+    postId: number
+    userId: number
   }
 
   export type BookmarkCountOrderByAggregateInput = {
