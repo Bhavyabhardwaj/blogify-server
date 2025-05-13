@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../db/Client";
 
-const getComments = async (req: Request, res: Response) => {
+const getComments = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -26,12 +26,12 @@ const getComments = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while fetching comments" });
+        next(err);
     }
 
 }
 
-const createComment = async (req: Request, res: Response) => {
+const createComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -52,7 +52,7 @@ const createComment = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while creating comment" });
+        next(err);
     }
 }
 

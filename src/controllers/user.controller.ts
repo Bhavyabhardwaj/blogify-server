@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../db/Client";
 
-const getUser = async (req: Request, res: Response) => {
+const getUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -22,7 +22,7 @@ const getUser = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ message: "error while getting user info" })
+        next(err);
     }
 
 };

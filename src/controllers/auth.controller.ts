@@ -1,7 +1,7 @@
 import { hashPassword, comparePassword } from "../utils/bcrypt";
 import prisma from "../db/Client";
 import { generateToken, verifyToken } from "../utils/jwt";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 
 const UserSchema = z.object({
@@ -15,7 +15,7 @@ const LoginSchema = z.object({
     password: z.string().min(6),
 });
 
-const register = async (req: Request, res: Response) => {
+const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userResponse = UserSchema.safeParse(req.body);
         if (!userResponse.success) {
@@ -46,11 +46,11 @@ const register = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Internal server error" });
+        next(err);
     }
 };
 
-const login = async (req: Request, res: Response) => {
+const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userResponse = LoginSchema.safeParse(req.body);
         if (!userResponse.success) {
@@ -84,7 +84,8 @@ const login = async (req: Request, res: Response) => {
         res.status(200).json({ token, message: 'Login successful' });
 
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
+        console.log(error);
+        next(error);
     }
 };
 

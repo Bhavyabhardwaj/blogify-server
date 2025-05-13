@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../db/Client";
 
-const bookmarkPost = async (req: Request, res: Response) => {
+const bookmarkPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -23,11 +23,11 @@ const bookmarkPost = async (req: Request, res: Response) => {
         })
     } catch (error) {
         console.log(error);
-        res.status(500).json({ error: "Error while bookmarking post" });
+        next(error);
     }
 }
 
-const removeBookmark = async (req: Request, res: Response) => {
+const removeBookmark = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -47,11 +47,11 @@ const removeBookmark = async (req: Request, res: Response) => {
         })
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Error while removing the bookmark" })
+        next(error)
     }
 }
 
-const getBookmarks = async (req: Request, res: Response) => {
+const getBookmarks = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -82,7 +82,7 @@ const getBookmarks = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while fetching bookmarks" });
+        next(err);
     }
 }
 

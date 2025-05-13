@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../db/Client";
 
-const likePost = async (req: Request, res: Response) => {
+const likePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -21,11 +21,11 @@ const likePost = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while liking post" });
+        next(err);
     }
 }
 
-const unlikePost = async (req: Request, res: Response) => {
+const unlikePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -46,11 +46,11 @@ const unlikePost = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while unliking post" });
+        next(err);
     }
 }
 
-const getLikes = async (req: Request, res: Response) => {
+const getLikes = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -81,7 +81,7 @@ const getLikes = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while fetching likes" });
+        next(err);
     }
 }
 

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import prisma from "../db/Client";
 
 const calculateReadingTime = (content: string): number => {
@@ -7,7 +7,7 @@ const calculateReadingTime = (content: string): number => {
     return Math.ceil(words / wordsPerMinute);
 };
 
-const getBlogs = async (req: Request, res: Response) => {
+const getBlogs = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -34,12 +34,12 @@ const getBlogs = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while fetching all blogs" });
+        next(err);
     }
 
 }
 
-const getBlog = async (req: Request, res: Response) => {
+const getBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -67,12 +67,12 @@ const getBlog = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while fetching blog" });
+        next(err);
     }
 
 }
 
-const createBlog = async (req: Request, res: Response) => {
+const createBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -95,12 +95,12 @@ const createBlog = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while creating blog" });
+        next(err);
     }
 
 }
 
-const updateBlog = async (req: Request, res: Response) => {
+const updateBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -120,12 +120,12 @@ const updateBlog = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while updating blog" });
+        next(err);
     }
 
 }
 
-const deleteBlog = async (req: Request, res: Response) => {
+const deleteBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -141,7 +141,7 @@ const deleteBlog = async (req: Request, res: Response) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ error: "Error while deleting blog" });
+        next(err);
     }
 
 }
