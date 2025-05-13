@@ -5,6 +5,7 @@ import router from './routers/auth.route';
 import userRouter from './routers/user.route';
 import blogRouter from './routers/blog.route';
 import commentRouter from './routers/comment.route';
+import { likeRouter } from './routers/like.route';
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/auth', router)
 app.use('/api', userRouter)
 app.use('/api/posts', blogRouter)
 app.use('/api/comments', commentRouter)
+app.use('/api/likes', likeRouter)
 
 const PORT = process.env.PORT || 4000;
 
