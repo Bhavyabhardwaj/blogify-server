@@ -32,6 +32,32 @@ const getBlogs = async (req: Request, res: Response) => {
     res.status(200).json(blogs);
 }
 
+const getBlog = async (req: Request, res: Response) => {
+    const userId = (req as any).user;
+    if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+    }
+    const blog = await prisma.post.findUnique({
+        where: {
+            id: Number(req.params.id),
+            authorId: Number(userId),
+        },
+        select: {
+            id: true,
+            title: true,
+            content: true,
+            readingTime: true,
+            author: {
+                select: {
+                    id: true,
+                    username: true,
+                }
+            }
+        }
+    })
+    res.status(200).json(blog);
+}
+
 const createBlog = async (req: Request, res: Response) => {
     const userId = (req as any).user;
     if (!userId) {
@@ -53,4 +79,36 @@ const createBlog = async (req: Request, res: Response) => {
     res.status(200).json({ blog, message: 'Blog created successfully' });
 }
 
-export { getBlogs, createBlog };
+const updateBlog = async (req: Request, res: Response) => {
+    const userId = (req as any).user;
+    if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+    }
+    const blog = await prisma.post.update({
+        where: {
+            id: Number(req.params.id),
+            authorId: Number(userId),
+        },
+        data: {
+            title: req.body.title,
+            content: req.body.content,
+        },
+    })
+    res.status(200).json({ blog, message: 'Blog updated successfully' });
+}
+
+const deleteBlog = async (req: Request, res: Response) => {
+    const userId = (req as any).user;
+    if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+    }
+    const blog = await prisma.post.delete({
+        where: {
+            id: Number(req.params.id),
+            authorId: Number(userId),
+        },
+    })
+    res.status(200).json({ blog, message: 'Blog deleted successfully' });
+}
+
+export { getBlogs, createBlog, getBlog, updateBlog, deleteBlog };
