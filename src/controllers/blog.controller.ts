@@ -152,14 +152,13 @@ const deleteBlog = async (req: Request, res: Response, next: NextFunction) => {
 }
 const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { sortBy = "date", tag } = req.query;
+        const { sortBy = "date", tag, search } = req.query;
 
-        // Build order
         let orderBy = {};
         if (sortBy === "likes") {
             orderBy = {
                 likes: {
-                    _count: "desc", // assuming Post has a likes relation
+                    _count: "desc",
                 },
             };
         } else {
@@ -168,18 +167,27 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
             };
         }
 
-        // Build where condition if tag filter exists
-        const whereCondition = tag
-            ? {
-                tags: {
-                    some: {
-                        tag: {
-                            name: String(tag),
+        const whereCondition: any = {};
+
+        if (tag) {
+            whereCondition.tags = {
+                some: {
+                    tag: {
+                        name: {
+                            equals: String(tag),
+                            mode: "insensitive",
                         },
                     },
                 },
-            }
-            : {};
+            };
+        }
+
+        if (search) {
+            whereCondition.title = {
+                contains: String(search),
+                mode: "insensitive",
+            };
+        }
 
         const posts = await prisma.post.findMany({
             where: whereCondition,
@@ -210,6 +218,7 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
         next(err);
     }
 };
+
 
 
 export { getBlogs, createBlog, getBlog, updateBlog, deleteBlog, getAllPosts };
