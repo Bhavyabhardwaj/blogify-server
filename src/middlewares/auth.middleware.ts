@@ -1,8 +1,8 @@
 import { verifyToken } from "../utils/jwt";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 
-const authenticateJWT = async (req: Request, res: Response, next: any) => {
+const authenticateJWT = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         res.status(401).json({ message: "Authorization header missing or invalid" });
@@ -16,7 +16,7 @@ const authenticateJWT = async (req: Request, res: Response, next: any) => {
         (req as any).user = user;
         next();
     } catch (error) {
-        res.status(401).json({ message: "Token verfiy failed" });
+        next(error)
         console.log(error);
     }
 }

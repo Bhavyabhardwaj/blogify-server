@@ -23,7 +23,7 @@ app.get('/test', (req, res) => {
 })
 
 app.use('/api/auth', router)
-app.use('/api', userRouter)
+app.use('/api/user', userRouter)
 app.use('/api/posts', blogRouter)
 app.use('/api/comments', commentRouter)
 app.use('/api/likes', likeRouter)
