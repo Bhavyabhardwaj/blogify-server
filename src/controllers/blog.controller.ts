@@ -75,30 +75,35 @@ const getBlog = async (req: Request, res: Response, next: NextFunction) => {
 const createBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user;
-        if (!userId) {
-            res.status(401).json({ message: "Unauthorized" });
-        }
+        if (!userId) res.status(401).json({ message: "Unauthorized" });
 
-        const readingTime = calculateReadingTime(req.body.content);
+        const { title, content, tagIds } = req.body;
+        const readingTime = calculateReadingTime(content);
 
         const blog = await prisma.post.create({
             data: {
-                title: req.body.title,
-                content: req.body.content,
-                readingTime: readingTime,
-                author: {
-                    connect: { id: Number(userId) },
+                title,
+                content,
+                readingTime,
+                author: { connect: { id: Number(userId) } },
+                tags: {
+                    create: tagIds.map((tagId: number) => ({
+                        tag: { connect: { id: tagId } },
+                    })),
                 },
             },
-        })
-        res.status(200).json({ blog, message: 'Blog created successfully' });
-    }
-    catch (err) {
-        console.log(err);
+            include: {
+                tags: { include: { tag: true } },
+            },
+        });
+
+        res.status(201).json({ blog, message: "Blog created successfully" });
+    } catch (err) {
+        console.error(err);
         next(err);
     }
+};
 
-}
 
 const updateBlog = async (req: Request, res: Response, next: NextFunction) => {
     try {
