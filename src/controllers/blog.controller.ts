@@ -78,6 +78,12 @@ const createBlog = async (req: Request, res: Response, next: NextFunction) => {
         if (!userId) res.status(401).json({ message: "Unauthorized" });
 
         const { title, content, tagIds } = req.body;
+
+        // Check if tagIds is an array and has values
+        if (!Array.isArray(tagIds) || tagIds.length === 0) {
+            res.status(400).json({ message: "Tags must be provided as an array" });
+        }
+
         const readingTime = calculateReadingTime(content);
 
         const blog = await prisma.post.create({
@@ -103,6 +109,7 @@ const createBlog = async (req: Request, res: Response, next: NextFunction) => {
         next(err);
     }
 };
+
 
 
 const updateBlog = async (req: Request, res: Response, next: NextFunction) => {
