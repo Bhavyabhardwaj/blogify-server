@@ -19,13 +19,21 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userResponse = UserSchema.safeParse(req.body);
         if (!userResponse.success) {
-            res.status(400).json({ error: 'Invalid request body' });
+            return res.status(400).json({ 
+                error: 'Invalid request body', 
+                issues: userResponse.error.errors 
+            });
         }
 
-        const { email, password, username } = userResponse.data!;
+        const { email, password, username } = userResponse.data;
 
-        if (!email || !password || !username) {
-            throw new Error('Please give all inputs');
+        // Check if user with this email already exists
+        const existingUser = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email already exists' });
         }
 
         const hashedPassword = await hashPassword(password);
@@ -42,11 +50,11 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
         const token = generateToken(user.id);
 
-        res.status(201).json({ token, message: 'User created successfully' });
+        return res.status(201).json({ token, message: 'User created successfully' });
     }
     catch (err) {
-        console.log(err);
-        next(err);
+        console.error('Registration error:', err);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -54,14 +62,13 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userResponse = LoginSchema.safeParse(req.body);
         if (!userResponse.success) {
-            throw new Error('Invalid request body');
+            return res.status(400).json({ 
+                error: 'Invalid request body', 
+                issues: userResponse.error.errors 
+            });
         }
 
         const { email, password } = userResponse.data;
-
-        if (!email || !password) {
-            throw new Error('Please give all inputs');
-        }
 
         const user = await prisma.user.findUnique({
             where: {
@@ -70,22 +77,21 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         });
 
         if (!user) {
-            throw new Error('User not found');
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const isPasswordValid = await comparePassword(password, user.password);
 
         if (!isPasswordValid) {
-            throw new Error('Invalid password');
+            return res.status(401).json({ error: 'Invalid password' });
         }
 
         const token = generateToken(user.id);
 
-        res.status(200).json({ token, message: 'Login successful' });
-
+        return res.status(200).json({ token, message: 'Login successful' });
     } catch (error) {
-        console.log(error);
-        next(error);
+        console.error('Login error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 

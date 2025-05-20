@@ -7,11 +7,12 @@ const calculateReadingTime = (content: string): number => {
     return Math.ceil(words / wordsPerMinute);
 };
 
-const getBlogs = async (req: Request, res: Response, next: NextFunction) => {
+const getBlogs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).user;
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
         }
         const blogs = await prisma.post.findMany({
             where: {
@@ -22,10 +23,17 @@ const getBlogs = async (req: Request, res: Response, next: NextFunction) => {
                 title: true,
                 content: true,
                 readingTime: true,
+                createdAt: true,
                 author: {
                     select: {
                         id: true,
                         username: true,
+                    }
+                },
+                _count: {
+                    select: {
+                        likes: true,
+                        comments: true
                     }
                 }
             },
@@ -33,57 +41,82 @@ const getBlogs = async (req: Request, res: Response, next: NextFunction) => {
         res.status(200).json(blogs);
     }
     catch (err) {
-        console.log(err);
         next(err);
     }
-
 }
 
-const getBlog = async (req: Request, res: Response, next: NextFunction) => {
+const getBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).user;
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
         }
-        const blog = await prisma.post.findUnique({
+        const blog = await prisma.post.findFirst({
             where: {
                 id: Number(req.params.id),
-                authorId: Number(userId),
             },
             select: {
                 id: true,
                 title: true,
                 content: true,
                 readingTime: true,
+                createdAt: true,
+                updatedAt: true,
                 author: {
                     select: {
                         id: true,
                         username: true,
+                        avatarUrl: true,
+                    },
+                },
+                _count: {
+                    select: {
+                        likes: true,
+                        comments: true
+                    }
+                },
+                comments: {
+                    select: {
+                        id: true,
+                        content: true,
+                        createdAt: true,
+                        author: {
+                            select: {
+                                id: true,
+                                username: true,
+                                avatarUrl: true
+                            }
+                        }
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
                     }
                 }
-            }
-        })
+            },
+        });
+
+        if (!blog) {
+            res.status(404).json({ message: "Post not found" });
+            return;
+        }
+
         res.status(200).json(blog);
     }
     catch (err) {
-        console.log(err);
         next(err);
     }
-
 }
 
-const createBlog = async (req: Request, res: Response, next: NextFunction) => {
+const createBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).user;
-        if (!userId) res.status(401).json({ message: "Unauthorized" });
-
-        const { title, content, tagIds } = req.body;
-
-        // Check if tagIds is an array and has values
-        if (!Array.isArray(tagIds) || tagIds.length === 0) {
-            res.status(400).json({ message: "Tags must be provided as an array" });
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
         }
 
+        const { title, content } = req.body;
         const readingTime = calculateReadingTime(content);
 
         const blog = await prisma.post.create({
@@ -92,31 +125,21 @@ const createBlog = async (req: Request, res: Response, next: NextFunction) => {
                 content,
                 readingTime,
                 author: { connect: { id: Number(userId) } },
-                tags: {
-                    create: tagIds.map((tagId: number) => ({
-                        tag: { connect: { id: tagId } },
-                    })),
-                },
-            },
-            include: {
-                tags: { include: { tag: true } },
             },
         });
 
         res.status(201).json({ blog, message: "Blog created successfully" });
     } catch (err) {
-        console.error(err);
         next(err);
     }
 };
 
-
-
-const updateBlog = async (req: Request, res: Response, next: NextFunction) => {
+const updateBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).user;
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
         }
         const blog = await prisma.post.update({
             where: {
@@ -131,33 +154,59 @@ const updateBlog = async (req: Request, res: Response, next: NextFunction) => {
         res.status(200).json({ blog, message: 'Blog updated successfully' });
     }
     catch (err) {
-        console.log(err);
         next(err);
     }
-
 }
 
-const deleteBlog = async (req: Request, res: Response, next: NextFunction) => {
+const deleteBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).user;
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
         }
-        const blog = await prisma.post.delete({
-            where: {
-                id: Number(req.params.id),
-                authorId: Number(userId),
-            },
-        })
-        res.status(200).json({ blog, message: 'Blog deleted successfully' });
+        const post = await prisma.post.findUnique({
+            where: { id: Number(req.params.id) },
+            select: { id: true, authorId: true }
+        });
+        if (!post) {
+            res.status(404).json({ message: "Post not found" });
+            return;
+        }
+        if (String(post.authorId) !== String(userId)) {
+            res.status(403).json({ message: "You are not allowed to delete this post" });
+            return;
+        }
+        // Delete all related PostTag entries
+        await prisma.postTag.deleteMany({
+            where: { postId: Number(req.params.id) }
+        });
+        // Delete all likes for this post
+        await prisma.like.deleteMany({
+            where: { postId: Number(req.params.id) }
+        });
+        // Delete all comments for this post
+        await prisma.comment.deleteMany({
+            where: { postId: Number(req.params.id) }
+        });
+        // Delete all bookmarks for this post
+        await prisma.bookmark.deleteMany({
+            where: { postId: Number(req.params.id) }
+        });
+        // Now delete the post
+        await prisma.post.delete({
+            where: { id: Number(req.params.id) }
+        });
+        res.status(200).json({ message: 'Blog deleted successfully' });
+        return;
     }
     catch (err) {
-        console.log(err);
+        console.error("Error deleting post:", err);
         next(err);
     }
-
 }
-const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
+
+const getAllPosts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { sortBy = "date", tag, search } = req.query;
 
@@ -204,6 +253,7 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
                     select: {
                         id: true,
                         username: true,
+                        avatarUrl: true,
                     },
                 },
                 tags: {
@@ -214,18 +264,15 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
                 _count: {
                     select: {
                         likes: true,
-                    },
-                },
+                        comments: true
+                    }
+                }
             },
         });
-
-        res.status(200).json({ posts });
+        res.status(200).json(posts);
     } catch (err) {
-        console.log(err);
         next(err);
     }
 };
-
-
 
 export { getBlogs, createBlog, getBlog, updateBlog, deleteBlog, getAllPosts };
