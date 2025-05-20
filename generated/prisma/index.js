@@ -214,7 +214,7 @@ const config = {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres:password@localhost:5432/blogdb"
+        "value": "postgresql://postgres:JGMqwEBjaJRYaAvomQBZyxZcIBIvYiYH@mainline.proxy.rlwy.net:56717/railway"
       }
     }
   },

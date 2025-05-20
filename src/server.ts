@@ -13,7 +13,14 @@ import tagRouter from './routers/tag.route';
 dotenv.config();
 const app = express();
 
-app.use(cors());
+// Configure CORS
+app.use(cors({
+    origin: ['http://localhost:8080', 'http://localhost:3000', 'https://blogify-bhavya.up.railway.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
