@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+// import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
 dotenv.config();
 
@@ -11,13 +11,13 @@ cloudinary.config({
     secure: true
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'blog_uploads',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-    transformation: [{ width: 800, height: 800, crop: 'limit' }],
-  },
-});
+// const storage = new CloudinaryStorage({
+//   cloudinary,
+//   params: {
+//     folder: 'blog_uploads',
+//     allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+//     transformation: [{ width: 800, height: 800, crop: 'limit' }],
+//   },
+// });
 
-export { storage, cloudinary };
+export { cloudinary };
