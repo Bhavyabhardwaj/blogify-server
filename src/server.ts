@@ -15,7 +15,7 @@ const app = express();
 
 // Configure CORS
 app.use(cors({
-    origin: ['http://localhost:8080', 'http://localhost:3000', 'https://blogify-bhavya.up.railway.app', 'https://blogify-client-8n6n69v5d-bhavya-bhardwajs-projects.vercel.app', 'https://blogify-client-o92dcctty-bhavya-bhardwajs-projects.vercel.app'],
+    origin: ['http://localhost:8080', 'http://localhost:3000', 'https://blogify-bhavya.up.railway.app', 'https://blogify-client-8n6n69v5d-bhavya-bhardwajs-projects.vercel.app', 'https://blogify-client-o92dcctty-bhavya-bhardwajs-projects.vercel.app', 'https://blogify-client-blue.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
