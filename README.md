@@ -86,3 +86,41 @@ This project is licensed under the **Not specified** License.
     <img src="https://img.shields.io/badge/View%20on-GitHub-black?style=for-the-badge&logo=github" alt="View on GitHub"/>
   </a>
 </div>
+
+## 🚀 Deployment on Render
+
+1. **Set Environment Variables**
+   - Create a `.env` file in the root of your server directory with the following variables:
+
+```env
+DATABASE_URL=your_postgres_connection_string
+JWT_SECRET=your_jwt_secret
+CLERK_SECRET_KEY=your_clerk_secret_key
+CLIENT_URL=https://your-frontend-url.vercel.app
+PORT=10000 # Render sets this automatically, but you can default to 4000
+```
+
+2. **Build & Start Commands for Render**
+   - **Build Command:** `npm run build`
+   - **Start Command:** `npm start`
+
+3. **Prisma**
+   - The `postinstall` script will run `prisma generate` and `tsc` automatically after install.
+   - If you use migrations, add a migration step in the Render dashboard: `npx prisma migrate deploy`
+
+4. **CORS**
+   - Make sure your `CLIENT_URL` is included in the CORS origin array in `src/server.ts`.
+
+---
+
+## 🛠️ Required Environment Variables
+
+Create a `.env.example` file with:
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+CLERK_SECRET_KEY=
+CLIENT_URL=
+PORT=4000
+```
