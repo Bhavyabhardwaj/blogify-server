@@ -97,7 +97,7 @@ const getUser = async (req: Request, res: Response, next: NextFunction): Promise
     }
 };
 
-const updateUserProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const userId = (req as any).user;
         if (!userId) {
@@ -105,14 +105,15 @@ const updateUserProfile = async (req: Request, res: Response, next: NextFunction
             return;
         }
 
-        const { username, bio, avatarUrl } = req.body;
+        const { username, bio } = req.body;
 
         // First check if username is already taken
         if (username) {
             const existingUser = await prisma.user.findFirst({
+                // if someone tries to update the username and it's taken it check's this condition
                 where: {
                     username,
-                    id: { not: Number(userId) }
+                    id: { not: Number(userId) }  // Find a user whose ID is not equal to the currently logged-in user
                 }
             });
 
@@ -122,43 +123,30 @@ const updateUserProfile = async (req: Request, res: Response, next: NextFunction
             }
         }
 
-        // Update user profile
+        const updateData: any = {
+            username,
+            bio,
+        };
+
         const user = await prisma.user.update({
             where: {
                 id: Number(userId),
             },
-            data: {
-                username,
-                bio,
-                avatarUrl,
-            },
+            data: updateData,
             select: {
                 id: true,
                 email: true,
                 username: true,
                 bio: true,
                 avatarUrl: true,
-                _count: {
-                    select: {
-                        posts: true,
-                        bookmarks: true,
-                        likes: true
-                    }
-                }
-            }
+                createdAt: true,
+            },
         });
 
-        // Return the response in the format expected by the frontend
-        res.status(200).json({
-            name: user.username,
-            bio: user.bio,
-            avatar: user.avatarUrl,
-            message: "Profile updated successfully"
-        });
-    }
-    catch (err) {
+        res.status(200).json({ user, message: 'User updated successfully' });
+    } catch (err) {
         next(err);
     }
 };
 
-export { getUser, updateUserProfile };
+export { getUser, updateUser };

@@ -1,25 +1,32 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../db/Client";
 
-const likePost = async (req: Request, res: Response, next: NextFunction) => {
+const likePost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const userId = (req as any).user;
+        const userId = Number((req as any).user);
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
         }
+        const postId = Number(req.params.id);
+
+        // Check if like already exists
+        const existingLike = await prisma.like.findFirst({
+            where: { authorId: userId, postId }
+        });
+        if (existingLike) {
+            res.status(200).json({ message: "Already liked" });
+            return;
+        }
+
         const like = await prisma.like.create({
             data: {
-                author: {
-                    connect: { id: Number(userId) },
-                },
-                post: {
-                    connect: { id: Number(req.params.id) },
-                },
+                author: { connect: { id: userId } },
+                post: { connect: { id: postId } },
             }
-        })
+        });
         res.status(200).json({ like, message: 'Liked successfully' });
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
         next(err);
     }

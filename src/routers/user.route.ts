@@ -1,10 +1,11 @@
-import { Router } from "express";
-import authenticateJWT from "../middlewares/auth.middleware";
-import { getUser, updateUserProfile } from "../controllers/user.controller";
+import express from 'express';
+import { getUser, updateUser } from '../controllers/user.controller';
+import authenticateToken from '../middlewares/auth.middleware';
 
-const userRouter = Router();
+const router = express.Router();
 
-userRouter.get("/me", authenticateJWT, getUser);
-userRouter.put("/updateUserProfile", authenticateJWT, updateUserProfile);
+router.get('/profile', authenticateToken, getUser);
+router.put('/profile', authenticateToken, updateUser);
+router.get('/me', authenticateToken, getUser);
 
-export default userRouter;
+export default router;

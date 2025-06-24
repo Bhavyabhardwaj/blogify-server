@@ -89,6 +89,7 @@ const getBlog = async (req: Request, res: Response, next: NextFunction): Promise
                             }
                         }
                     },
+                    // filter by descending order latest first
                     orderBy: {
                         createdAt: 'desc'
                     }
@@ -117,6 +118,10 @@ const createBlog = async (req: Request, res: Response, next: NextFunction): Prom
         }
 
         const { title, content } = req.body;
+        if (!title || !content) {
+            res.status(400).json({ message: "Title and content are required" });
+            return;
+        }
         const readingTime = calculateReadingTime(content);
 
         const blog = await prisma.post.create({
@@ -141,22 +146,40 @@ const updateBlog = async (req: Request, res: Response, next: NextFunction): Prom
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
+
+        // Check if post exists and belongs to user
+        const post = await prisma.post.findUnique({
+            where: { id: Number(req.params.id) },
+            select: { id: true, authorId: true }
+        });
+        if (!post) {
+            res.status(404).json({ message: "Post not found" });
+            return;
+        }
+        if (String(post.authorId) !== String(userId)) {
+            res.status(403).json({ message: "You are not allowed to update this post" });
+            return;
+        }
+
+        const updateData: any = {
+            title: req.body.title,
+            content: req.body.content,
+        };
+
         const blog = await prisma.post.update({
             where: {
                 id: Number(req.params.id),
-                authorId: Number(userId),
+                // authorId: Number(userId), // already checked above
             },
-            data: {
-                title: req.body.title,
-                content: req.body.content,
-            },
-        })
+            data: updateData,
+        });
         res.status(200).json({ blog, message: 'Blog updated successfully' });
     }
-    catch (err) {
-        next(err);
+    catch (err: any) {
+        console.error('Update blog error:', err);
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
-}
+};
 
 const deleteBlog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -210,6 +233,7 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction): Pro
     try {
         const { sortBy = "date", tag, search } = req.query;
 
+        // sort by likes or date
         let orderBy = {};
         if (sortBy === "likes") {
             orderBy = {
@@ -269,7 +293,7 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction): Pro
                 }
             },
         });
-        res.status(200).json(posts);
+        res.status(200).json({ posts });
     } catch (err) {
         next(err);
     }

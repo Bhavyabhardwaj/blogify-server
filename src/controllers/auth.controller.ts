@@ -54,7 +54,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     }
     catch (err) {
         console.error('Registration error:', err);
-        return res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
