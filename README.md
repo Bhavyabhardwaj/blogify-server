@@ -13,7 +13,7 @@
 </div>
 
 
-## 🎯 Getting Started.
+## 🎯 Getting Started
 
 ### Prerequisites
 
