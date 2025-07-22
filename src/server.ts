@@ -16,7 +16,8 @@ const app = express();
 
 // Configure CORS for production and development
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'https://blogify-c.vercel.app',
+  process.env.CLIENT_URL || 'https://blogify.bhavya.live',
+  'https://blogify-c.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000', 
   'http://localhost:8080',
