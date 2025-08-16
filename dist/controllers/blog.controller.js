@@ -127,6 +127,10 @@ const createBlog = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         const { title, content } = req.body;
+        if (!title || !content) {
+            res.status(400).json({ message: "Title and content are required" });
+            return;
+        }
         const readingTime = calculateReadingTime(content);
         const blog = yield Client_1.default.post.create({
             data: {
@@ -150,6 +154,19 @@ const updateBlog = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             res.status(401).json({ message: "Unauthorized" });
             return;
         }
+        // Check if post exists and belongs to user
+        const post = yield Client_1.default.post.findUnique({
+            where: { id: Number(req.params.id) },
+            select: { id: true, authorId: true }
+        });
+        if (!post) {
+            res.status(404).json({ message: "Post not found" });
+            return;
+        }
+        if (String(post.authorId) !== String(userId)) {
+            res.status(403).json({ message: "You are not allowed to update this post" });
+            return;
+        }
         const updateData = {
             title: req.body.title,
             content: req.body.content,
@@ -157,14 +174,15 @@ const updateBlog = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         const blog = yield Client_1.default.post.update({
             where: {
                 id: Number(req.params.id),
-                authorId: Number(userId),
+                // authorId: Number(userId), // already checked above
             },
             data: updateData,
         });
         res.status(200).json({ blog, message: 'Blog updated successfully' });
     }
     catch (err) {
-        next(err);
+        console.error('Update blog error:', err);
+        res.status(500).json({ message: err.message || 'Internal server error' });
     }
 });
 exports.updateBlog = updateBlog;

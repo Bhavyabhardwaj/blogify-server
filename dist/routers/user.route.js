@@ -9,4 +9,5 @@ const auth_middleware_1 = __importDefault(require("../middlewares/auth.middlewar
 const router = express_1.default.Router();
 router.get('/profile', auth_middleware_1.default, user_controller_1.getUser);
 router.put('/profile', auth_middleware_1.default, user_controller_1.updateUser);
+router.get('/me', auth_middleware_1.default, user_controller_1.getUser);
 exports.default = router;

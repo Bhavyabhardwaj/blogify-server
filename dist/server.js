@@ -16,9 +16,16 @@ const errorHandler_1 = __importDefault(require("./middlewares/errorHandler"));
 const tag_route_1 = __importDefault(require("./routers/tag.route"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-// Configure CORS
+// Configure CORS for production and development
+const allowedOrigins = [
+    process.env.CLIENT_URL || 'https://blogify.bhavya.live',
+    'https://blogify-c.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:8080',
+];
 app.use((0, cors_1.default)({
-    origin: ['http://localhost:8080', 'http://localhost:3000', 'https://blogify-bhavya.up.railway.app', 'https://blogify-client-8n6n69v5d-bhavya-bhardwajs-projects.vercel.app', 'https://blogify-client-o92dcctty-bhavya-bhardwajs-projects.vercel.app', 'https://blogify-client-blue.vercel.app'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
@@ -42,7 +49,7 @@ app.use('/api/likes', like_route_1.likeRouter);
 app.use('/api/bookmarks', bookmark_route_1.default);
 app.use('/api/tags', tag_route_1.default);
 app.use(errorHandler_1.default);
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = Number(process.env.PORT) || 3000;
 const HOST = '0.0.0.0'; // Listen on all network interfaces
 app.listen(PORT, HOST, () => {
     console.log(`Server is running on http://${HOST}:${PORT}`);

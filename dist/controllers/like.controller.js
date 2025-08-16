@@ -16,18 +16,24 @@ exports.getLikes = exports.unlikePost = exports.likePost = void 0;
 const Client_1 = __importDefault(require("../db/Client"));
 const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = req.user;
+        const userId = Number(req.user);
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const postId = Number(req.params.id);
+        // Check if like already exists
+        const existingLike = yield Client_1.default.like.findFirst({
+            where: { authorId: userId, postId }
+        });
+        if (existingLike) {
+            res.status(200).json({ message: "Already liked" });
+            return;
         }
         const like = yield Client_1.default.like.create({
             data: {
-                author: {
-                    connect: { id: Number(userId) },
-                },
-                post: {
-                    connect: { id: Number(req.params.id) },
-                },
+                author: { connect: { id: userId } },
+                post: { connect: { id: postId } },
             }
         });
         res.status(200).json({ like, message: 'Liked successfully' });
