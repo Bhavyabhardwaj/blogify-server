@@ -52,7 +52,7 @@ app.use('/api/bookmarks', bookmarkRouter)
 app.use('/api/tags', tagRouter)
 app.use(errorHandler);
 
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = Number(process.env.PORT) || 3000;
 const HOST = '0.0.0.0'; // Listen on all network interfaces
 
 app.listen(PORT, HOST, () => {
