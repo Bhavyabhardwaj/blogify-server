@@ -199,6 +199,10 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "debian-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -206,7 +210,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
+    "rootEnvPath": "../../.env",
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
@@ -225,8 +229,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        Int        @id @default(autoincrement())\n  email     String     @unique\n  password  String\n  username  String\n  bio       String\n  avatarUrl String\n  createdAt DateTime   @default(now())\n  updatedAt DateTime   @updatedAt\n  posts     Post[]\n  comments  Comment[]\n  likes     Like[]\n  bookmarks Bookmark[]\n}\n\nmodel Post {\n  id          Int        @id @default(autoincrement())\n  title       String\n  content     String\n  imageUrl    String?\n  author      User       @relation(fields: [authorId], references: [id])\n  authorId    Int\n  createdAt   DateTime   @default(now())\n  updatedAt   DateTime   @updatedAt\n  comments    Comment[]\n  readingTime Int\n  likes       Like[]\n  tags        PostTag[]\n  bookmarks   Bookmark[]\n}\n\nmodel Comment {\n  id        Int      @id @default(autoincrement())\n  content   String\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Like {\n  id        Int      @id @default(autoincrement())\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([authorId, postId])\n}\n\nmodel Tag {\n  id        Int       @id @default(autoincrement())\n  name      String\n  createdAt DateTime  @default(now())\n  posts     PostTag[]\n}\n\nmodel PostTag {\n  id        Int      @id @default(autoincrement())\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  tag       Tag      @relation(fields: [tagId], references: [id])\n  tagId     Int\n  createdAt DateTime @default(now())\n}\n\nmodel Bookmark {\n  id        Int      @id @default(autoincrement())\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  user      User     @relation(fields: [userId], references: [id])\n  userId    Int\n  createdAt DateTime @default(now())\n\n  @@unique([postId, userId])\n}\n",
-  "inlineSchemaHash": "2dd67ab11cb52acf8d4ade815043736da745459d03753c135e2a8f045844b2a1",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n  output        = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        Int        @id @default(autoincrement())\n  email     String     @unique\n  password  String\n  username  String\n  bio       String\n  avatarUrl String\n  createdAt DateTime   @default(now())\n  updatedAt DateTime   @updatedAt\n  posts     Post[]\n  comments  Comment[]\n  likes     Like[]\n  bookmarks Bookmark[]\n}\n\nmodel Post {\n  id          Int        @id @default(autoincrement())\n  title       String\n  content     String\n  imageUrl    String?\n  author      User       @relation(fields: [authorId], references: [id])\n  authorId    Int\n  createdAt   DateTime   @default(now())\n  updatedAt   DateTime   @updatedAt\n  comments    Comment[]\n  readingTime Int\n  likes       Like[]\n  tags        PostTag[]\n  bookmarks   Bookmark[]\n}\n\nmodel Comment {\n  id        Int      @id @default(autoincrement())\n  content   String\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Like {\n  id        Int      @id @default(autoincrement())\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  Int\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([authorId, postId])\n}\n\nmodel Tag {\n  id        Int       @id @default(autoincrement())\n  name      String\n  createdAt DateTime  @default(now())\n  posts     PostTag[]\n}\n\nmodel PostTag {\n  id        Int      @id @default(autoincrement())\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  tag       Tag      @relation(fields: [tagId], references: [id])\n  tagId     Int\n  createdAt DateTime @default(now())\n}\n\nmodel Bookmark {\n  id        Int      @id @default(autoincrement())\n  post      Post     @relation(fields: [postId], references: [id])\n  postId    Int\n  user      User     @relation(fields: [userId], references: [id])\n  userId    Int\n  createdAt DateTime @default(now())\n\n  @@unique([postId, userId])\n}\n",
+  "inlineSchemaHash": "a6f906b74519fda7cecc73cf195a6088b72480d4680c96ae660a0145a4e67ad5",
   "copyEngine": true
 }
 
@@ -267,6 +271,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
 path.join(process.cwd(), "generated/prisma/query_engine-windows.dll.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
+path.join(process.cwd(), "generated/prisma/libquery_engine-debian-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "generated/prisma/schema.prisma")
